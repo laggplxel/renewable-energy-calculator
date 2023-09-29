@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renewable Energy Calculator</title>
+    <style>
+      body {
+        background-image: url(https://greenerideal.com/wp-content/uploads/2020/09/optimize-solar-panel-generation-capacity.jpg);
+        background-size: cover;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        font-family: Arial, sans-serif;
+      }
+
+      h1 {
+        position: relative;
+      }
+
+      .calculator-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        max-width: 400px;
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 20px;
+        border-radius: 10px;
+      }
+
+      form {
+        text-align: center;
+        width: 100%;
+      }
+
+      form label,
+      form input {
+        display: block;
+        margin: 10px auto;
+        width: 100%;
+      }
+
+      input[type="submit"] {
+        width: auto;
+      }
+
+      #results {
+        width: 48%;
+        padding: 20px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+        margin-left: 10px;
+      }
+
+      #results h2 {
+        text-align: center;
+      }
+
+      #results ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      #results li {
+        margin-bottom: 10px;
+      }
+
+      .footer-text {
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        background-color: black;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 10px;
+      }
+
+      .footer-text a {
+        color: white;
+        text-decoration: none;
+      }
+
+      /* Hiding the results initially */
+      #results {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Renewable Energy Calculator</h1>
+    <div class="calculator-container">
+      <form action="/calculate" method="post" id="calculator-form" onsubmit="return showResults()">
+        <label for="location">Location (Latitude, Longitude):</label>
+        <input type="text" id="location" name="location" placeholder="e.g. 37.2350° N, 115.8111° W" required>
+        <label for="roof_size">Roof Size (sq. mtr.):</label>
+        <input type="number" id="roof_size" name="roof_size" placeholder="e.g. 160" required>
+        <label for="panel_efficiency">Panel Efficiency (%):</label>
+        <input type="number" id="panel_efficiency" name="panel_efficiency" min="1" max="100" placeholder="e.g. 20" required>
+        <label for="energy_needs">Energy Needs (kWh/month):</label>
+        <input type="number" id="energy_needs" name="energy_needs" placeholder="e.g. 900kWh" required>
+        <label for="installation_cost">Installation cost ($):</label>
+        <input type="number" id="installation_cost" name="installation_cost" placeholder="e.g $8500" required>
+        <small>Assumption: The average cost of electricity is $0.12 per kWh, and using solar panels saves approximately 0.5kg of CO2 for every kWh generated.</small>
+        <input type="submit" value="Calculate">
+      </form>
+      <div id="results" style="display:none;">
+        <h2>Results</h2>
+        <ul>
+          <li>Estimated Energy Generation: <span id="estimated-energy-generation">0 kWh</span>
+          </li>
+          <li>Energy Savings (Monthly): <span id="energy-savings-monthly">$0</span>
+          </li>
+          <li>Energy Savings (Yearly): <span id="energy-savings-yearly">$0</span>
+          </li>
+          <li>Payback Period: <span id="payback-period">N/A</span>
+          </li>
+          <li>Environmental Impact (CO2 Saved): <span id="environmental-impact">0 kg</span>
+          </li>
+          <li>Simple Financial Analysis (Upfront Cost): <span id="upfront-cost">$0</span>
+          </li>
+        </ul>
+        <button type="button" onclick="goBack()">Back</button>
+      </div>
+    </div>
+    <div class="footer-text">
+      <small>Made by <a href="#">Sharan</a> (Backend and Javascript), <a href="#">Varun</a> (Frontend and HTML), and <a href="#">Pranav</a> (Testing and feedback). Submission for Hack4earth. <small>
+    </div>
+
+    <script>
+      function showResults() {
+        // Hide the form
+        document.getElementById("calculator-form").style.display = "none";
+        // Show the results
+        document.getElementById("results").style.display = "block";
+        // Perform the calculations
+        calculateResults();
+        // Prevent the form from actually submitting
+        return false;
+      }
+
+      function goBack() {
+        // Show the form
+        document.getElementById("calculator-form").style.display = "block";
+        // Hide the results
+        document.getElementById("results").style.display = "none";
+      }
+
+      function calculateResults() {
+        const form = document.getElementById("calculator-form");
+        const roofSize = parseFloat(form.elements["roof_size"].value);
+        const panelEfficiency = parseFloat(form.elements["panel_efficiency"].value) / 100;
+        const energyNeeds = parseFloat(form.elements["energy_needs"].value);
+        const installationCost = parseFloat(form.elements["installation_cost"].value);
+        const costPerKWh = 0.12;
+        const co2SavedPerKWh = 0.5;
+        const estimatedEnergyGeneration = (roofSize * panelEfficiency * 30).toFixed(2);
+        const monthlyEnergySavings = (estimatedEnergyGeneration * costPerKWh).toFixed(2);
+        const yearlyEnergySavings = (monthlyEnergySavings * 12).toFixed(2);
+        const paybackPeriod = installationCost / yearlyEnergySavings;
+        const environmentalImpact = (estimatedEnergyGeneration * co2SavedPerKWh).toFixed(2);
+        document.getElementById("estimated-energy-generation").textContent = estimatedEnergyGeneration + " kWh";
+        document.getElementById("energy-savings-monthly").textContent = "$" + monthlyEnergySavings;
+        document.getElementById("energy-savings-yearly").textContent = "$" + yearlyEnergySavings;
+        document.getElementById("payback-period").textContent = paybackPeriod.toFixed(2) + " years";
+        document.getElementById("environmental-impact").textContent = environmentalImpact + " kg";
+        document.getElementById("upfront-cost").textContent = "$" + installationCost.toFixed(2);
+      }
+    </script>
+  </body>
+</html>
